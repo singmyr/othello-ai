@@ -16,10 +16,13 @@ board = Board()
 board.output()
 
 try:
+    sock.send(b'Bot #1')
     data = sock.recv(BUFFER_SIZE)
     print('Received', data)
-    unpacked = struct.unpack('16c', data)
+    unpacked = struct.unpack('17c', data)
     print(int.from_bytes(unpacked[7], byteorder='big'))
+    print('Sending next move')
+    sock.send(struct.pack('c', b'\x32'))
     #message = b'This is the message. It will be repeated.'
     #print('sending {!r}'.format(message))
     #sock.sendall(message)
@@ -32,8 +35,8 @@ try:
     #    amount_received += len(data)
     #    print('Received: ', len(data))
     #    print('received {!r}'.format(data))
-except:
-    print('Shit')
+except Exception as e:
+    print('Shit', e)
 finally:
     print('closing socket')
     sock.close()
