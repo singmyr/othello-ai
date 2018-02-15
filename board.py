@@ -10,6 +10,31 @@ class Board:
     def __str__(self):
         return str(self.board)
 
+    def update(self, boardData):
+        row = 0
+        col = 0
+        for data in boardData:
+            # Convert the byte string to integer.
+            data = int.from_bytes(data, byteorder='big')
+
+            # Find a prettier way to extract the data.
+            first = (data & 0xC0) >> 6
+            second = (data & 0x30) >> 4
+            third = (data & 0x0C) >> 2
+            fourth = (data & 0x03)
+
+            # Find a better way to insert the data.
+            self.board[row][col] = first
+            self.board[row][col + 1] = second
+            self.board[row][col + 2] = third
+            self.board[row][col + 3] = fourth
+
+            col += 4
+            if col >= 8:
+                col = 0
+                row += 1
+        self.output()
+
     def output(self):
         #var scores = this.board.getScores();
         #console.log(this.players.map((p) = > {

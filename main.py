@@ -1,5 +1,4 @@
 import socket
-import sys
 import struct
 
 from board import Board
@@ -17,10 +16,16 @@ board.output()
 
 try:
     sock.send(b'Bot #1')
+    data = sock.recv(1)
+    print(data)
+    print('Received the id')
     data = sock.recv(BUFFER_SIZE)
-    print('Received', data)
+    #print('Received', data)
     unpacked = struct.unpack('17c', data)
-    print(int.from_bytes(unpacked[7], byteorder='big'))
+    board.update(unpacked[1:])
+    gameState = unpacked[:1]
+    #print(gameState)
+    #print(int.from_bytes(unpacked[7], byteorder='big'))
     print('Sending next move')
     sock.send(struct.pack('c', b'\x32'))
     #message = b'This is the message. It will be repeated.'
@@ -41,7 +46,7 @@ finally:
     print('closing socket')
     sock.close()
 
-import socket
+#import socket
 
 
 #TCP_IP = '127.0.0.1'
