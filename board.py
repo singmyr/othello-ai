@@ -2,9 +2,9 @@ class Board:
     def __init__(self):
         self.board = [[0] * 8 for i in range(8)]
         self.board[3][3] = 2
-        self.board[3][4] = 1
-        self.board[4][3] = 1
-        self.board[4][4] = 2
+        self.board[3][4] = 2
+        self.board[4][3] = 2
+        self.board[4][4] = 1
         print('created board')
 
     def __str__(self):
@@ -34,6 +34,137 @@ class Board:
                 col = 0
                 row += 1
         self.output()
+
+    def get_valid_moves(self, player_id):
+        board = self.board
+
+        def check_north(_x, _y):
+            return True if _y > 0 and board[_y - 1][_x] > 0 else False
+
+        def check_nort_east(_x, _y):
+            return True if _x < 6 and _y > 0 and board[_y - 1][_x + 1] > 0 else False
+
+        def check_east(_x, _y):
+            return True if _x < 6 and board[_y][_x + 1] > 0 else False
+
+        def check_south_east(_x, _y):
+            return True if _x < 6 and _y < 6 and board[_y + 1][_x + 1] > 0 else False
+
+        def check_south(_x, _y):
+            return True if _y < 6 and board[_y + 1][_x] > 0 else False
+
+        def check_south_west(_x, _y):
+            return True if _x > 0 and _y < 6 and board[_y + 1][_x - 1] > 0 else False
+
+        def check_west(_x, _y):
+            return True if _x > 0 and board[_y][_x - 1] > 0 else False
+
+        def check_north_west(_x, _y):
+            return True if _x > 0 and _y > 0 and board[_y - 1][_x - 1] > 0 else False
+
+        potentials = []
+
+        for _y, row in enumerate(self.board):
+            for _x, col in enumerate(row):
+                if (check_north(_x, _y) or
+                   check_nort_east(_x, _y) or
+                   check_east(_x, _y) or
+                   check_south_east(_x, _y) or
+                   check_south(_x, _y) or
+                   check_south_west(_x, _y) or
+                   check_west(_x, _y) or
+                   check_north_west(_x, _y)):
+                    potentials.append([_x, _y])
+
+        valid_moves = []
+        for move in potentials:
+            if self.slot_has_valid_move(move[0], move[1], player_id):
+                valid_moves.append(move)
+
+        return valid_moves
+
+    def slot_has_valid_move(self, pos_x, pos_y, player_id):
+        # Check north
+        if pos_y > 1:
+            opponent_found = False
+            for _y in reversed(range(0, pos_y, 1)):
+                opponent_found = True if (opponent_found or
+                                          (self.board[_y][pos_x] != 0 and self.board[_y][pos_x] != player_id))\
+                    else False
+                if opponent_found and self.board[_y][pos_x] == player_id:
+                    return True
+
+        # Check north east
+        if pos_x < 6 and pos_y > 1:
+            opponent_found = False
+            for _x, _y in zip(range(pos_x + 1, 7, 1), reversed(range(0, pos_y, 1))):
+                opponent_found = True if (opponent_found or
+                                          (self.board[_y][_x] != 0 and self.board[_y][_x] != player_id)) \
+                    else False
+                if opponent_found and self.board[_y][_x] == player_id:
+                    return True
+
+        # Check east
+        if pos_x < 6:
+            opponent_found = False
+            for _x in range(pos_x + 1, 7, 1):
+                opponent_found = True if (opponent_found or
+                                          (self.board[pos_y][_x] != 0 and self.board[pos_y][_x] != player_id))\
+                    else False
+                if opponent_found and self.board[pos_y][_x] == player_id:
+                    return True
+
+        # Check south east
+        if pos_x < 6 and pos_y < 6:
+            opponent_found = False
+            for _x, _y in zip(range(pos_x + 1, 7, 1), range(pos_y + 1, 7, 1)):
+                opponent_found = True if (opponent_found or
+                                          (self.board[_y][_x] != 0 and self.board[_y][_x] != player_id)) \
+                    else False
+                if opponent_found and self.board[_y][_x] == player_id:
+                    return True
+
+        # Check south
+        if pos_y < 6:
+            opponent_found = False
+            for _y in range(pos_y + 1, 7, 1):
+                opponent_found = True if (opponent_found or
+                                          (self.board[_y][pos_x] != 0 and self.board[_y][pos_x] != player_id))\
+                    else False
+                if opponent_found and self.board[_y][pos_x] == player_id:
+                    return True
+
+        # Check south west
+        if pos_x > 1 and pos_y < 6:
+            opponent_found = False
+            for _x, _y in zip(reversed(range(0, pos_x, 1)), range(pos_y + 1, 7, 1)):
+                opponent_found = True if (opponent_found or
+                                          (self.board[_y][_x] != 0 and self.board[_y][_x] != player_id)) \
+                    else False
+                if opponent_found and self.board[_y][_x] == player_id:
+                    return True
+
+        # Check west
+        if pos_x > 1:
+            opponent_found = False
+            for _x in reversed(range(0, pos_x, 1)):
+                opponent_found = True if (opponent_found or
+                                          (self.board[pos_y][_x] != 0 and self.board[pos_y][_x] != player_id))\
+                    else False
+                if opponent_found and self.board[pos_y][_x] == player_id:
+                    return True
+
+        # Check north west
+        if pos_x > 1 and pos_y < 6:
+            opponent_found = False
+            for _x, _y in zip(reversed(range(0, pos_x, 1)), reversed(range(0, pos_y, 1))):
+                opponent_found = True if (opponent_found or
+                                          (self.board[_y][_x] != 0 and self.board[_y][_x] != player_id)) \
+                    else False
+                if opponent_found and self.board[_y][_x] == player_id:
+                    return True
+
+        return False
 
     def output(self):
         #var scores = this.board.getScores();

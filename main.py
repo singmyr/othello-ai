@@ -1,7 +1,14 @@
 import socket
 import struct
+import traceback
+import random
+import sys
 
 from board import Board
+
+
+def bytes_to_int(bytes):
+    return int.from_bytes(bytes, byteorder='big')
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -17,31 +24,25 @@ board.output()
 try:
     sock.send(b'Bot #1')
     data = sock.recv(1)
-    print(data)
-    print('Received the id')
+    player_id = bytes_to_int(data)
+    print('Received the id', player_id)
     data = sock.recv(BUFFER_SIZE)
-    #print('Received', data)
     unpacked = struct.unpack('17c', data)
     board.update(unpacked[1:])
     gameState = unpacked[:1]
-    #print(gameState)
+    valid_moves = board.get_valid_moves(player_id)
+    print(valid_moves)
+    print('next move:', random.choice(valid_moves))
     #print(int.from_bytes(unpacked[7], byteorder='big'))
     print('Sending next move')
     sock.send(struct.pack('c', b'\x32'))
-    #message = b'This is the message. It will be repeated.'
-    #print('sending {!r}'.format(message))
-    #sock.sendall(message)
-
-    #amount_received = 0
-    #amount_expected = len(message)
-
-    #while amount_received < amount_expected:
-    #    data = sock.recv(512)
-    #    amount_received += len(data)
-    #    print('Received: ', len(data))
-    #    print('received {!r}'.format(data))
+    data = sock.recv(1)
+    if bytes_to_int(data) == 1:
+        print('good move')
+    else:
+        print('bad move')
 except Exception as e:
-    print('Shit', e)
+    print(traceback.format_exc())
 finally:
     print('closing socket')
     sock.close()
