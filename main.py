@@ -44,18 +44,22 @@ try:
         data = sock.recv(BUFFER_SIZE)
         unpacked = struct.unpack('17c', data)
         board.update(unpacked[1:])
-        gameState = unpacked[:1]
+        gameState = bytes_to_int(unpacked[:1][0])
         # Interpret game state
+        if gameState & 8 == 8:
+            print('Game is active!')
+        if gameState & 16 == 0:
+            print('No move, skipping turn')
+            continue
         my_turn = True
         while my_turn:
             valid_moves = board.get_valid_moves(player_id)
-            print(valid_moves)
+            #print(valid_moves)
             next_move = random.choice(valid_moves)
             print('Sending next move', next_move)
             move = 0
             move += next_move[0] << 4
             move += next_move[1]
-            print(move)
             sock.send(struct.pack('c', bytes([move])))
             data = sock.recv(1)
             if bytes_to_int(data) == 1:
@@ -65,7 +69,7 @@ try:
                 print('bad move, try another move')
                 board.output()
                 sys.exit()
-            time.sleep(1)
+            time.sleep(.1)
     print('wtf')
 except Exception as e:
     print(traceback.format_exc())

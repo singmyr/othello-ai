@@ -6,14 +6,14 @@ class Board:
         self.board[4][3] = 1
         self.board[4][4] = 2
         #self.board = [
-        #    [0, 0, 0, 0, 0, 0, 0, 0],
-        #    [0, 0, 0, 0, 0, 0, 0, 0],
-        #    [0, 0, 2, 1, 0, 0, 0, 0],
-        #    [0, 0, 2, 1, 1, 0, 0, 0],
-        #    [0, 0, 2, 1, 2, 0, 0, 0],
-        #    [0, 0, 0, 1, 0, 0, 0, 0],
-        #    [0, 0, 0, 0, 0, 0, 0, 0],
-        #    [0, 0, 0, 0, 0, 0, 0, 0]
+        #    [2, 1, 1, 1, 1, 1, 1, 1],
+        #    [2, 1, 1, 1, 1, 1, 2, 1],
+        #    [2, 1, 2, 2, 1, 1, 1, 1],
+        #    [2, 1, 2, 1, 1, 2, 2, 1],
+        #    [2, 1, 2, 2, 2, 1, 2, 1],
+        #    [2, 1, 2, 2, 2, 1, 2, 1],
+        #    [2, 2, 2, 2, 1, 2, 2, 1],
+        #    [2, 1, 1, 1, 1, 2, 2, 0]
         #]
 
     def __str__(self):
@@ -94,7 +94,6 @@ class Board:
 
     def slot_has_valid_move(self, pos_x, pos_y, player_id):
         # Check north
-        #print('Checking north')
         if pos_y > 1:
             opponent_found = False
             for _y in reversed(range(0, pos_y, 1)):
@@ -107,7 +106,6 @@ class Board:
                     break
 
         # Check north east
-        #print('Checking north east')
         if pos_x < 6 and pos_y > 1:
             opponent_found = False
             for _x, _y in zip(range(pos_x + 1, 7, 1), reversed(range(0, pos_y, 1))):
@@ -120,7 +118,6 @@ class Board:
                     break
 
         # Check east
-        #print('Checking east')
         if pos_x < 6:
             opponent_found = False
             for _x in range(pos_x + 1, 7, 1):
@@ -133,7 +130,6 @@ class Board:
                     break
 
         # Check south east
-        #print('Checking south east')
         if pos_x < 6 and pos_y < 6:
             opponent_found = False
             for _x, _y in zip(range(pos_x + 1, 7, 1), range(pos_y + 1, 7, 1)):
@@ -146,7 +142,6 @@ class Board:
                     break
 
         # Check south
-        #print('Checking south')
         if pos_y < 6:
             opponent_found = False
             for _y in range(pos_y + 1, 7, 1):
@@ -159,7 +154,6 @@ class Board:
                     break
 
         # Check south west
-        #print('Checking south west')
         if pos_x > 1 and pos_y < 6:
             opponent_found = False
             for _x, _y in zip(reversed(range(0, pos_x, 1)), range(pos_y + 1, 7, 1)):
@@ -172,21 +166,18 @@ class Board:
                     break
 
         # Check west
-        #print('Checking west')
         if pos_x > 1:
             opponent_found = False
             for _x in reversed(range(0, pos_x, 1)):
                 opponent_found = True if (opponent_found or
                                           (self.board[pos_y][_x] != 0 and self.board[pos_y][_x] != player_id))\
                     else False
-                print(_x, pos_y, opponent_found, self.board[pos_y][_x])
                 if opponent_found and self.board[pos_y][_x] == player_id:
                     return True
                 if self.board[pos_y][_x] == 0 or self.board[pos_y][_x] == player_id:
                     break
 
         # Check north west
-        #print('Checking north west')
         if pos_x > 1 and pos_y < 6:
             opponent_found = False
             for _x, _y in zip(reversed(range(0, pos_x, 1)), reversed(range(0, pos_y, 1))):
