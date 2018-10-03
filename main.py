@@ -17,78 +17,82 @@ def bytes_to_int(bytes):
     return int.from_bytes(bytes, byteorder='big')
 
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
 server_address = ('localhost', 1337)
-print('connecting to {} port {}'.format(*server_address))
-sock.connect(server_address)
 
 BUFFER_SIZE = 64
 
-board = Board()
-#board.output()
-#print(board.get_valid_moves(1))
-#print(board.slot_has_valid_move(5, 4, 2))
-#sys.exit()
+while True:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #print('connecting to {} port {}'.format(*server_address))
+    sock.connect(server_address)
+    board = Board()
+    #board.output(1)
+    #print(board.get_valid_moves(1))
+    #print(board.slot_has_valid_move(2, 0, 2))
+    #sys.exit()
 
-game_is_active = True
-try:
-    name = random_generator()
-    print('Bot name:', name)
-    sock.send(bytes(name, 'utf-8'))
-    data = sock.recv(1)
-    player_id = bytes_to_int(data)
-    print('Received the id', player_id)
+    game_is_active = True
+    try:
+        # Wait to receive the player_id from the server.
+        data = sock.recv(1)
+        player_id = bytes_to_int(data)
+        #print('Received the id', player_id)
 
-    while game_is_active:
-        data = sock.recv(BUFFER_SIZE)
-        unpacked = struct.unpack('17c', data)
-        board.update(unpacked[1:])
-        gameState = bytes_to_int(unpacked[:1][0])
-        # Interpret game state
-        if gameState & 8 == 8:
-            print('Game is active!')
-        if gameState & 16 == 0:
-            print('No move, skipping turn')
-            continue
-        my_turn = True
-        while my_turn:
-            valid_moves = board.get_valid_moves(player_id)
-            #print(valid_moves)
-            next_move = random.choice(valid_moves)
-            print('Sending next move', next_move)
-            move = 0
-            move += next_move[0] << 4
-            move += next_move[1]
-            sock.send(struct.pack('c', bytes([move])))
-            data = sock.recv(1)
-            if bytes_to_int(data) == 1:
-                print('good move')
-                my_turn = False
+        #time.sleep(5)
+
+        while game_is_active:
+            # print("\n - Beginning turn (id", player_id, ") -\n")
+            data = sock.recv(BUFFER_SIZE)
+            unpacked = struct.unpack('17c', data)
+            board.update(unpacked[1:], player_id)
+            #print(unpacked[1:])
+            #print('Received board, player id =', player_id)
+            # board.output(player_id)
+            gameState = bytes_to_int(unpacked[:1][0])
+            # Interpret game state
+            # print('GameState:', gameState)
+            if gameState & player_id == player_id:
+                print('WINNER, WINNER, CHICKEN DINNER')
+                board.output(player_id)
+                game_is_active = False
+            if gameState & 4 == 4:
+                # print('DRAW')
+                game_is_active = False
+            if gameState & 8 == 8:
+                if gameState & 16 == 16:
+                    # print('No move, skipping turn')
+                    continue
             else:
-                print('bad move, try another move')
-                board.output()
-                sys.exit()
-            time.sleep(.1)
-    print('wtf')
-except Exception as e:
-    print(traceback.format_exc())
-finally:
-    print('closing socket')
-    sock.close()
-
-#import socket
-
-
-#TCP_IP = '127.0.0.1'
-#TCP_PORT = 1337
-#BUFFER_SIZE = 1024
-#MESSAGE = "Hello, World!"
-
-#s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#s.connect((TCP_IP, TCP_PORT))
-#s.send(MESSAGE)
-#data = s.recv(BUFFER_SIZE)
-#s.close()
-
-#print("received data:", data)
+                # print('SHIT I LOST?!')
+                game_is_active = False
+            my_turn = True
+            while game_is_active and my_turn:
+                valid_moves = board.get_valid_moves(player_id)
+                # print(valid_moves)
+                if valid_moves == None:
+                    # print('I don\'t have any active moves?!')
+                    sys.exit()
+                next_move = random.choice(valid_moves)
+                #next_move = [6, 5]
+                #print('Sending next move', next_move)
+                move = 0
+                move += next_move[0] << 4
+                move += next_move[1]
+                sock.send(struct.pack('c', bytes([move])))
+                data = sock.recv(1)
+                if bytes_to_int(data) == 1:
+                    #print('good move')
+                    my_turn = False
+                    # print(" - Ended turn - ")
+                else:
+                    # print(board.board)
+                    # print('bad move, try another move')
+                    print(bytes_to_int(data))
+                    #board.output(player_id)
+                    sys.exit()
+    except Exception as e:
+        print(traceback.format_exc())
+        #sys.exit()
+    finally:
+        print('closing socket')
+        sock.close()
