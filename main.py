@@ -52,7 +52,7 @@ while True:
             # Interpret game state
             # print('GameState:', gameState)
             if gameState & player_id == player_id:
-                print('WINNER, WINNER, CHICKEN DINNER')
+                print('I won as player', player_id)
                 board.output(player_id)
                 game_is_active = False
             if gameState & 4 == 4:
@@ -87,12 +87,12 @@ while True:
                 else:
                     # print(board.board)
                     # print('bad move, try another move')
-                    print(bytes_to_int(data))
+                    #print(bytes_to_int(data))
                     #board.output(player_id)
                     sys.exit()
     except Exception as e:
         print(traceback.format_exc())
         #sys.exit()
     finally:
-        print('closing socket')
+        #print('closing socket')
         sock.close()

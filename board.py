@@ -212,7 +212,7 @@ class Board:
         #console.log(this.players.map((p) = > {
         #return `${p.name}(${scores[p.id]})`;}).join(' vs '));
         #print(self.board)
-        print(self.board)
+        #print(self.board)
         for row in self.board:
             output = ''
             for col in row:
@@ -223,4 +223,4 @@ class Board:
                 else:
                     output += '\x1b[2m\x1b[37m\u2588\x1b[0m\x1b[0m '
 
-            print(output)
+            #print(output)
